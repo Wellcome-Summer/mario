@@ -4,59 +4,65 @@ using UnityEngine;
 
 public class PingpongEnemy : MonoBehaviour
 {
-    public Transform DestinationSpot;
-    public Transform OriginSpot;
-    public float Speed;
-    public float pause = 5f;
-    float Stoptimer = 0;
-    bool flag = false;
-    
-    void FixedUpdate()
+    public float speed = 5;
+    float currentTime;
+    float dir = 0.5f;
+    public Vector3 velocity;
+    float currentDelayTime;
+    float delayTime = 2;
+
+    enum State
     {
-        if (transform.position == OriginSpot.position && flag == true)
-        {
-            transform.LookAt(DestinationSpot);
-            flag = false;
-            Stoptimer = 0f;
-        }
-        if (transform.position == DestinationSpot.position && flag == false)
-        {
-            transform.LookAt(OriginSpot);
-            flag = true;
-            Stoptimer = 0f;
-        }
-        if (flag == true)
-        {
-            if (Stoptimer >= pause)
-            {
-                
-                transform.position = Vector3.MoveTowards(transform.position, OriginSpot.position, Speed * Time.deltaTime);
-            }
-            else
-            {
-                Stoptimer += Time.deltaTime;
-            }
-        }
-        else
-        {
-            if (Stoptimer >= pause)
-            {
-                transform.Rotate(Vector3.up * Time.deltaTime);
-                transform.position = Vector3.MoveTowards(transform.position, DestinationSpot.position, Speed * Time.deltaTime);
-            }
-            else
-            {
-                Stoptimer += Time.deltaTime;
-            }
-        }
+        Move,
+        Delay,
+    }
+    State state;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        state = State.Move;
+        velocity = transform.forward * speed;
     }
 
-    private void OnTriggerEnter(Collider other)
+    // Update is called once per frame
+    void Update()
     {
-        if (other.gameObject.name.Contains("Player"))
+        if (state == State.Move)
         {
-            Destroy(other.gameObject);
-            GameManager.instance.GameOverUI.SetActive(true);
+            currentTime += dir * Time.deltaTime;
+            velocity = (dir == 0.5f ? transform.forward : transform.forward) * speed;
+            transform.position += velocity * Time.deltaTime;
+            if (dir == 0.5f)
+            {
+                if (currentTime > 1)
+                {
+                    dir = -0.5f;
+                    currentTime = 1;
+                    state = State.Delay;
+                    currentDelayTime = 0;
+                }
+            }
+            else
+            {
+                if (currentTime < 0)
+                {
+                    dir = 0.5f;
+                    currentTime = 0;
+                    state = State.Delay;
+                    currentDelayTime = 0;
+                }
+            }
+        }
+        else if (state == State.Delay)
+        {
+            velocity = Vector3.zero;
+            transform.Rotate(Vector3.up * Time.deltaTime * 90);
+            currentDelayTime += Time.deltaTime;
+            if (currentDelayTime > delayTime)
+            {
+                state = State.Move;
+            }
         }
     }
 }

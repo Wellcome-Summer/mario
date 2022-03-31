@@ -30,7 +30,7 @@ public class TimerCountdown : MonoBehaviour
         secondsLeft -= 1;
         if (secondsLeft < 0)
         {
-            GameManager.instance.GameOverUI.SetActive(true);
+            //GameManager.instance.GameOverUI.SetActive(true);
         }
         textDisplay.GetComponent<Text>().text = "" + secondsLeft;
         takingAway = false;

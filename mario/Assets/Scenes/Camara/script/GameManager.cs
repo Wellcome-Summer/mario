@@ -9,9 +9,15 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public GameObject PauseUI = null;
-    public GameObject PauseButton;
     public GameObject GameOverUI;
-    public GameObject starImageUI;
+    public GameObject GameOverCamera;
+    public GameObject GameClearUI;
+    public GameObject GameClearCamera;
+    public GameObject MainUI;
+    public GameObject MainCamera;
+    public GameObject StartGame;
+    public GameObject GameMode;
+
 
     public static GameManager instance;
 
@@ -22,10 +28,10 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        PauseUI.SetActive(false);
-        GameOverUI.SetActive(false);
-        starImageUI.SetActive(false);
-
+        StartGame.SetActive(true);
+        print("StartGameO");
+        MainUI.SetActive(false);
+        print("GameModeX");
     }
 
     private void Update()
@@ -35,11 +41,12 @@ public class GameManager : MonoBehaviour
             if (PauseUI.activeSelf)
             {
                 PauseUI.SetActive(false);
+                Time.timeScale = 1;
             }
             else
             {
                 PauseUI.SetActive(true);
-
+                Time.timeScale = 0;
             }
         }
     }
@@ -47,28 +54,30 @@ public class GameManager : MonoBehaviour
     public void OnClickPauseMenu()
     {
         PauseUI.SetActive(true);
+        Time.timeScale = 0;
     }
     public void OnClickContinueButton()
     {
         PauseUI.SetActive(false);
+        Time.timeScale = 1;
     }
     public void OnClickQuitButton()
     {
-        Application.Quit();    }
+        Application.Quit();
+    }
+    public void OnClickStartButton()
+    {
+        MainUI.SetActive(true);
+        print("GameModeO");
+        StartGame.SetActive(false);
+        print("StartGameX");
+    }
     public void OnClickRestart()
     {
-        print("OnClickRestart");
         // 현재Scene을 다시 로드하고싶다.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 
-    private void OnTriggerEnter(PlayerMove other)
-    {
-        if (other.transform.tag == "Star")
-        {
-            starImageUI.SetActive(true);
-        }
-    }
 
 }

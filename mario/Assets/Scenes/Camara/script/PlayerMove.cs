@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
+
+    public Animator anim;
+
     CharacterController cc;
     public float dashTime = 2f;
     public float dashSpeed = 20f;
@@ -14,11 +17,10 @@ public class PlayerMove : MonoBehaviour
     public float coolTime = 5;
     bool canDash = true;
 
-
     // Start is called before the first frame update
     void Start()
     {
-       
+
         cc = GetComponent<CharacterController>();
     }
     private IEnumerator DashCoolTime()
@@ -31,19 +33,29 @@ public class PlayerMove : MonoBehaviour
     public int plusScore = 2000;
     private void OnTriggerEnter(Collider other)
     {
-        print("OnTriggerEnter" + other.name);
-        if (other.transform.tag =="Star")
+
+        if (other.transform.tag == "Star")
         {
             ScoreManager.instance.SCORE += plusScore;
             Destroy(other.gameObject);
+
+            anim.SetTrigger("GetStar");
         }
 
         if (other.CompareTag("Platform"))
         {
             platform = other.gameObject.GetComponent<Platform>();
         }
-    }
 
+        if (other.transform.tag == "Enemy")
+        {
+            anim.SetTrigger("Death");   
+            GameManager.instance.GameOverUI.SetActive(true);
+            GameManager.instance.GameOverCamera.SetActive(true);
+            GameManager.instance.MainCamera.SetActive(false);
+            GameManager.instance.MainUI.SetActive(false);
+        }
+    }
 
     private IEnumerator DashCoroutine()
     {
@@ -57,7 +69,7 @@ public class PlayerMove : MonoBehaviour
     }
     void Update()
     {
-        
+
         if (false == cc.isGrounded)
         {
             yVelocity += gravity * Time.deltaTime;
@@ -66,6 +78,10 @@ public class PlayerMove : MonoBehaviour
         // 1. 사용자의 입력에따라
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
+        anim.SetFloat("h", h);
+        anim.SetFloat("v", v);
+
+
         // 2. 앞뒤좌우로 방향을 만들고
         Vector3 dir = new Vector3(h, 0, v);
 
@@ -76,6 +92,7 @@ public class PlayerMove : MonoBehaviour
         if (h != 0 || v != 0)
         {
             transform.forward = dir;
+
         }
         Vector3 velocity = dir * speed;
         velocity.y = yVelocity;
@@ -94,12 +111,11 @@ public class PlayerMove : MonoBehaviour
             StartCoroutine(DashCoroutine());
         }
 
-
     }
 
     Platform platform;
 
-    
+
     private void OnTriggerExit(Collider other)
     {
         platform = null;
